@@ -1,0 +1,29 @@
+name: Quality Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        name: Setup pnpm
+        with:
+          version: 8.6.0
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: CI
+        run: pnpm run ci
