@@ -6,8 +6,11 @@ A minimal implementation of the Result type in TypeScript. Allowing you to handl
 
 ```bash
 npm install @justmiracle/result
+
 yarn add @justmiracle/result
+
 pnpm add @justmiracle/result
+
 bun add @justmiracle/result
 ```
 
