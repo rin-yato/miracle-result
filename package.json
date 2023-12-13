@@ -18,7 +18,8 @@
     "test:run": "vitest --run",
     "test:watch": "vitest --watch",
     "typecheck": "tsc --noEmit",
-    "ci": "pnpm run test:run && pnpm run typecheck && pnpm run build"
+    "ci": "pnpm run test:run && pnpm run typecheck && pnpm run build",
+    "release": "pnpm run ci && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
