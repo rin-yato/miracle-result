@@ -1,5 +1,6 @@
 {
   "name": "@miralce/result",
+  "private": false,
   "version": "1.0.0",
   "module": "index.cjs",
   "typings": "index.d.ts",
