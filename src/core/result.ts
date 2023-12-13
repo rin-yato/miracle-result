@@ -7,9 +7,23 @@
  * // Error result with a custom error message
  * const errorResult: Result<number> = err("Something went wrong");
  */
-export type Result<T> =
-  | { value: T; error: null }
-  | { value: null; error: Error };
+export type Result<T> = Ok<T> | Err;
+
+/**
+ * Represents a successful Result.
+ * @example
+ * // Successful result with a number
+ * const successResult: Ok<number> = { value: 42, error: null };
+ */
+export type Ok<T> = { value: T; error: null };
+
+/**
+ * Represents an error Result.
+ * @example
+ * // Error result with a custom error message
+ * const errorResult: Err<number> = { value: null, error: Error };
+ */
+export type Err = { value: null; error: Error };
 
 /**
  * Creates a successful Result with the provided data.
@@ -33,7 +47,7 @@ export const ok = <T>(data: T): Result<T> => ({ value: data, error: null });
  * // Create an error result with an existing Error object
  * const errorResult2: Result<number> = err(new Error("Another error"));
  */
-export const err = <T = any>(error: any): Result<T> =>
+export const err = <T>(error: any): Result<T> =>
   error instanceof Error
     ? { value: null, error }
     : { value: null, error: new Error(error, { cause: error }) };
@@ -113,7 +127,11 @@ export const unwrap = <T>(result: Result<T>): T => {
  * @example
  * // Map the value inside a successful result
  * const mappedResult = map(successResult, (value) => value * 2);
- * // mappedResult: Result<number> = { value: 84, error: null }
+ * // mappedResult: { value: 84, error: null }
+ *
+ * // Map the value inside an error result
+ * const mappedErrorResult = map(errorResult, (value) => value * 2);
+ * // mappedErrorResult: { value: null, error: Error }
  */
 export const map = <T, U>(result: Result<T>, fn: (value: T) => U): Result<U> =>
   isOk(result) ? ok(fn(result.value!)) : { value: null, error: result.error };

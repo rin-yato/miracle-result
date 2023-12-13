@@ -1,0 +1,35 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - dev
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - uses: pnpm/action-setup@v2
+        name: Setup pnpm
+        with:
+          version: 8.6.0
+          run_install: false
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: CI
+        run: pnpm run ci
+
+      - name: Publish
+        id: changesets
+        uses: changesets/action@v2
+        with:
+          publish: pnpm run build
