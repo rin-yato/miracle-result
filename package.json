@@ -27,9 +27,6 @@
     "typescript": "^5.0.2",
     "vitest": "^1.0.4"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
   "bugs": {
     "url": "https://github.com/rin-yato/miracle-result/issues"
   },
