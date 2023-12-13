@@ -7,15 +7,11 @@
   "main": "index.js",
   "type": "module",
   "description": "A simple result type for TypeScript",
-  "author": {
-    "name": "RinYato",
-    "url": "https://rinyato.com",
-    "email": "chearithorn@gmail.com"
-  },
+  "author": "RinYato <chearithorn@gmail.com> (https://rinyato.com)",
   "license": "MIT",
   "repository": {
     "type": "github",
-    "url": "https://github.com/rin-yato/miracle-result.git"
+    "url": "git+https://github.com/rin-yato/miracle-result.git"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --minify",
@@ -24,9 +20,14 @@
   },
   "devDependencies": {
     "tsup": "^8.0.1",
-    "vitest": "^1.0.4"
+    "vitest": "^1.0.4",
+    "typescript": "^5.0.2"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/rin-yato/miracle-result/issues"
+  },
+  "homepage": "https://github.com/rin-yato/miracle-result#readme"
 }
