@@ -1,5 +1,12 @@
 # @justmiracle/result
 
+## 1.1.3
+
+### Patch Changes
+
+- 88c1d1e: test: added type test for map function
+- f07b71a: updated the return type of err util
+
 ## 1.1.2
 
 ### Patch Changes
