@@ -1,5 +1,11 @@
 # @justmiracle/result
 
+## 1.1.2
+
+### Patch Changes
+
+- 73dccef: Corrected the entryfile path in package.json
+
 ## 1.1.1
 
 ### Patch Changes
