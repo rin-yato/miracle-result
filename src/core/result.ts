@@ -133,5 +133,8 @@ export const unwrap = <T>(result: Result<T>): T => {
  * const mappedErrorResult = map(errorResult, (value) => value * 2);
  * // mappedErrorResult: { value: null, error: Error }
  */
-export const map = <T, U>(result: Result<T>, fn: (value: T) => U): Result<U> =>
+export const map = <T, U>(
+  result: Result<T>,
+  fn: (value: T) => U,
+): Result<U> =>
   isOk(result) ? ok(fn(result.value!)) : { value: null, error: result.error };

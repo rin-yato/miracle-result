@@ -58,8 +58,17 @@ describe('Result Type and Utility Functions', () => {
     expect(mappedResult.error).toBe(null);
 
     const errorResult: Result<number> = err('Error');
+    // @ts-expect-error - errorResult is inferred directly as Err
     const mappedErrorResult = map(errorResult, value => value * 2);
     expect(mappedErrorResult.value).toBe(null);
     expect(mappedErrorResult.error instanceof Error).toBe(true);
+
+    const testFunction = (value: boolean) => value ? ok(42) : err('Error');
+
+    const testResult = map(testFunction(true), value => value * 2);
+    expect(testResult.value).toBe(84);
+
+    const textErrorResult = map(testFunction(false), value => value * 2);
+    expect(textErrorResult.value).toBe(null);
   });
 });
