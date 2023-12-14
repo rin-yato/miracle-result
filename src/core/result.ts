@@ -47,7 +47,7 @@ export const ok = <T>(data: T): Result<T> => ({ value: data, error: null });
  * // Create an error result with an existing Error object
  * const errorResult2: Result<number> = err(new Error("Another error"));
  */
-export const err = <T>(error: any): Result<T> =>
+export const err = (error: any): Err =>
   error instanceof Error
     ? { value: null, error }
     : { value: null, error: new Error(error, { cause: error }) };
