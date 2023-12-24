@@ -138,3 +138,25 @@ export const map = <T, U>(
   fn: (value: T) => U,
 ): Result<U> =>
   isOk(result) ? ok(fn(result.value!)) : { value: null, error: result.error };
+
+
+
+/**
+ * A higher function that wraps a function in a safe Result.
+ * @param fn The function to be wrapped.
+ * @returns A new function that returns a Result.
+ * @example
+ * // Create a safe function
+ * const safeJsonParse = makeSafe(JSON.parse);
+ * const result = safeJsonParse("{ invalid json }");
+ * // result: { value: null, error: SyntaxError }
+ */
+export function makeSafe<Fn extends (...args: any[]) => any>(fn: Fn) {
+  return (...args: Parameters<Fn>): Result<ReturnType<Fn>> => {
+    try {
+      return ok(fn(...args));
+    } catch (e) {
+      return err(e);
+    }
+  };
+}

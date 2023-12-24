@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { err, isErr, isOk, map, ok, Result, unwrap, unwrapOr } from './result';
+import {
+  err,
+  isErr,
+  isOk,
+  makeSafe,
+  map,
+  ok,
+  Result,
+  unwrap,
+  unwrapOr,
+} from './result';
 
 describe('Result Type and Utility Functions', () => {
   it('should create a successful Result with the provided data', () => {
@@ -14,6 +24,21 @@ describe('Result Type and Utility Functions', () => {
     expect(errorResult.value).toBe(null);
     expect(errorResult.error instanceof Error).toBe(true);
     expect(errorResult.error?.message).toBe('Something went wrong');
+  });
+
+  it('should return the error if it is an instance of Error', () => {
+    class CustomError extends Error {
+      public code: number;
+      constructor(message: string, code: number) {
+        super(message);
+        this.code = code;
+      }
+    }
+
+    const customError = new CustomError('Something went wrong', 500);
+    const errorResult: Result<number> = err(customError);
+    expect(errorResult.value).toBe(null);
+    expect(errorResult.error).toBe(customError);
   });
 
   it('should check if a Result is successful', () => {
@@ -63,12 +88,31 @@ describe('Result Type and Utility Functions', () => {
     expect(mappedErrorResult.value).toBe(null);
     expect(mappedErrorResult.error instanceof Error).toBe(true);
 
-    const testFunction = (value: boolean) => value ? ok(42) : err('Error');
+    const testFunction = (value: boolean) => (value ? ok(42) : err('Error'));
 
     const testResult = map(testFunction(true), value => value * 2);
     expect(testResult.value).toBe(84);
 
     const textErrorResult = map(testFunction(false), value => value * 2);
     expect(textErrorResult.value).toBe(null);
+  });
+
+  it('should make unsafe functions safe', () => {
+    const unsafeFunction = () => {
+      const random = Math.random() * 10;
+      if (random < 5) return "It's safe!";
+      throw new Error("It's not safe!");
+    };
+
+    const safeFunction = makeSafe(unsafeFunction);
+
+    for (let i = 0; i < 10; i++) {
+      const result = safeFunction();
+      if (isOk(result)) {
+        expect(result.value).toBe("It's safe!");
+      } else {
+        expect(result.error.message).toBe("It's not safe!");
+      }
+    }
   });
 });
