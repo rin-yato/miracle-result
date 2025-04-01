@@ -1,17 +1,17 @@
 {
-  "name": "@justmiracle/result",
+  "name": "@avearistov/fuck-around",
   "private": false,
   "version": "1.2.0",
   "module": "dist/index.cjs",
   "typings": "dist/index.d.ts",
   "main": "dist/index.js",
   "type": "module",
-  "description": "A simple result type for TypeScript",
-  "author": "RinYato <chearithorn@gmail.com> (https://rinyato.com)",
+  "description": "A TypeScript Result type for when you want to fuck around and find out",
+  "author": "Ave Aristov <chantepkik@gmail.com> (https://www.avearistov.com/)",
   "license": "MIT",
   "repository": {
     "type": "github",
-    "url": "git+https://github.com/rin-yato/miracle-result.git"
+    "url": "git+https://github.com/avevotsira/fuck-around"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --minify",
@@ -30,5 +30,7 @@
   "bugs": {
     "url": "https://github.com/rin-yato/miracle-result/issues"
   },
-  "homepage": "https://github.com/rin-yato/miracle-result#readme"
+  "homepage": "https://github.com/rin-yato/miracle-result#readme",
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
 }
+
