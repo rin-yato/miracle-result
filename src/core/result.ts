@@ -1,13 +1,20 @@
 /**
- * Represents a Result type that can either hold a value of type T or an Error.
+ * Represents a Result type that can either hold a value of type T or an error of type E.
+ *
+ * ⚠️ **TypeScript Limitation:**
+ * When returning multiple different `err(...)` values from a function, TypeScript will infer a union of separate `Err<...>` types (e.g., `Ok<42> | Err<"A"> | Err<"B">`), not a merged `Err<"A" | "B">`.
+ *
+ * **Best Practice:**
+ * If you want the error type to be a union (e.g., `Ok<42> | Err<"A" | "B">`), explicitly annotate your function's return type.
+ *
  * @example
  * // Successful result with a number
- * const successResult: Result<number> = ok(42);
+ * const successResult: Result<number, string> = ok(42);
  *
  * // Error result with a custom error message
- * const errorResult: Result<number> = err("Something went wrong");
+ * const errorResult: Result<number, string> = err("Something went wrong");
  */
-export type Result<T> = Ok<T> | Err;
+export type Result<T, E> = Ok<T> | Err<E>;
 
 /**
  * Represents a successful Result.
@@ -19,11 +26,18 @@ export type Ok<T> = { value: T; error: null };
 
 /**
  * Represents an error Result.
+ *
+ * ⚠️ **TypeScript Limitation:**
+ * When returning multiple different `err(...)` values from a function, TypeScript will infer a union of separate `Err<...>` types (e.g., `Ok<42> | Err<"A"> | Err<"B">`), not a merged `Err<"A" | "B">`.
+ *
+ * **Best Practice:**
+ * If you want the error type to be a union (e.g., `Ok<42> | Err<"A" | "B">`), explicitly annotate your function's return type.
+ *
  * @example
  * // Error result with a custom error message
- * const errorResult: Err<number> = { value: null, error: Error };
+ * const errorResult: Err<string> = { value: null, error: "Something went wrong" };
  */
-export type Err = { value: null; error: Error };
+export type Err<E> = { value: null; error: E };
 
 /**
  * Creates a successful Result with the provided data.
@@ -33,24 +47,27 @@ export type Err = { value: null; error: Error };
  * // Create a successful result with a string
  * const successResult: Result<string> = ok("Hello, World!");
  */
-export const ok = <T>(data: T): Result<T> => ({ value: data, error: null });
+export const ok = <const T>(data: T): Ok<T> => ({ value: data, error: null });
 
 /**
  * Creates an error Result with the provided error.
- * If the error is not an instance of Error, it is wrapped in an Error object.
+ *
+ * ⚠️ **TypeScript Limitation:**
+ * When returning multiple different `err(...)` values from a function, TypeScript will infer a union of separate `Err<...>` types (e.g., `Ok<42> | Err<"A"> | Err<"B">`), not a merged `Err<"A" | "B">`.
+ *
+ * **Best Practice:**
+ * If you want the error type to be a union (e.g., `Ok<42> | Err<"A" | "B">`), explicitly annotate your function's return type.
+ *
  * @param error The error to be wrapped in an error Result.
- * @returns A Result containing null for the value and the provided or wrapped error.
+ * @returns A Result containing null for the value and the provided error.
  * @example
  * // Create an error result with a custom error message
- * const errorResult: Result<number> = err("Something went wrong");
+ * const errorResult: Result<number, string> = err("Something went wrong");
  *
  * // Create an error result with an existing Error object
- * const errorResult2: Result<number> = err(new Error("Another error"));
+ * const errorResult2: Result<number, Error> = err(new Error("Another error"));
  */
-export const err = (error: any): Err =>
-  error instanceof Error
-    ? { value: null, error }
-    : { value: null, error: new Error(error, { cause: error }) };
+export const err = <const E>(error: E): Err<E> => ({ value: null, error });
 
 /**
  * Checks if a Result is successful.
@@ -66,9 +83,8 @@ export const err = (error: any): Err =>
  *   console.error("Error:", successResult.error?.message);
  * }
  */
-export const isOk = <T>(
-  result: Result<T>,
-): result is { value: T; error: null } => result.error === null;
+export const isOk = <T, E>(result: Result<T, E>): result is Ok<T> =>
+  result.error === null;
 
 /**
  * Checks if a Result is an error.
@@ -84,9 +100,8 @@ export const isOk = <T>(
  *   console.log("Success:", errorResult.value);
  * }
  */
-export const isErr = <T>(
-  result: Result<T>,
-): result is { value: null; error: Error } => result.error !== null;
+export const isErr = <T, E>(result: Result<T, E>): result is Err<E> =>
+  result.error !== null;
 
 /**
  * Unwraps the value from a successful Result, or returns a default value for an error Result.
@@ -98,7 +113,7 @@ export const isErr = <T>(
  * const value = unwrapOr(successResult, 0);
  * // value: number = 42
  */
-export const unwrapOr = <T>(result: Result<T>, defaultValue: T): T =>
+export const unwrapOr = <T, E>(result: Result<T, E>, defaultValue: T): T =>
   isOk(result) ? result.value! : defaultValue;
 
 /**
@@ -114,32 +129,10 @@ export const unwrapOr = <T>(result: Result<T>, defaultValue: T): T =>
  * const value = unwrap(errorResult);
  * // Error: Something went wrong
  */
-export const unwrap = <T>(result: Result<T>): T => {
+export const unwrap = <T, E>(result: Result<T, E>): T => {
   if (isOk(result)) return result.value!;
   throw result.error;
 };
-
-/**
- * Applies a function to the value inside a successful Result.
- * @param result The Result to be transformed.
- * @param fn The function to apply to the value.
- * @returns A new Result with the transformed value or the original error.
- * @example
- * // Map the value inside a successful result
- * const mappedResult = map(successResult, (value) => value * 2);
- * // mappedResult: { value: 84, error: null }
- *
- * // Map the value inside an error result
- * const mappedErrorResult = map(errorResult, (value) => value * 2);
- * // mappedErrorResult: { value: null, error: Error }
- */
-export const map = <T, U>(
-  result: Result<T>,
-  fn: (value: T) => U,
-): Result<U> =>
-  isOk(result) ? ok(fn(result.value!)) : { value: null, error: result.error };
-
-
 
 /**
  * A higher function that wraps a function in a safe Result.
@@ -152,7 +145,7 @@ export const map = <T, U>(
  * // result: { value: null, error: SyntaxError }
  */
 export function makeSafe<Fn extends (...args: any[]) => any>(fn: Fn) {
-  return (...args: Parameters<Fn>): Result<ReturnType<Fn>> => {
+  return (...args: Parameters<Fn>): Result<ReturnType<Fn>, unknown> => {
     try {
       return ok(fn(...args));
     } catch (e) {

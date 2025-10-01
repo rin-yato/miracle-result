@@ -20,19 +20,19 @@ bun add @justmiracle/result
 - [Creating a Result](#creating-a-result)
 - [Checking Result Type](#checking-result-type)
 - [Unwrapping Result](#unwrapping-result)
-- [Transforming Result](#transforming-result)
+- [TypeScript Error Type Inference](#typescript-error-type-inference)
 
 ### API
 
 ```ts
 // A result is either successful or an error
-type Result<T> = Ok<T> | Err;
+export type Result<T, E> = Ok<T> | Err<E>;
 
 // A successful result contains a value and null for error
-type Ok<T> = { value: T; error: null };
+export type Ok<T> = { value: T; error: null };
 
 // An error result contains null for value and an error
-type Err = { value: null; error: Error };
+export type Err<E> = { value: null; error: E };
 ```
 
 ### Creating a Result
@@ -40,17 +40,16 @@ type Err = { value: null; error: Error };
 You can create a result using the `ok` or `err` function:
 
 ```typescript
-import { ok, err } from '@justmiracle/result';
+import { ok, err, Result } from '@justmiracle/result';
 
-const successResult: Result<number> = ok(42);
+const successResult: Result<number, string> = ok(42);
 // { value: 42, error: null }
 
-const errorResult: Result<number> = err(new Error('Something went wrong'));
-// { value: null, error: Error }
+const errorResult: Result<number, string> = err('Something went wrong');
+// { value: null, error: 'Something went wrong' }
 
-// error can be anything, if the function detect that it's not an error it will be converted to an error
-const errorResult: Result<number> = err('Something went wrong');
-// { value: null, error: Error } the same as above
+const errorResult2: Result<number, Error> = err(new Error('Another error'));
+// { value: null, error: Error }
 ```
 
 ### Checking Result Type
@@ -61,7 +60,7 @@ You can check if a result is successful using the `isOk` function:
 if (isOk(successResult)) {
   console.log('Success:', successResult.value);
 } else {
-  console.error('Error:', successResult.error.message);
+  console.error('Error:', successResult.error);
 }
 ```
 
@@ -69,9 +68,35 @@ You can check if a result is an error using the `isErr` function:
 
 ```typescript
 if (isErr(errorResult)) {
-  console.error('Error:', errorResult.error.message);
+  console.error('Error:', errorResult.error);
 } else {
   console.log('Success:', errorResult.value);
+}
+```
+
+You can also check for error directly:
+
+```typescript
+const result = someFunctionReturningResult();
+if (result.error) {
+  // Handle error
+  console.error('Error:', result.error);
+  return result;
+}
+// Otherwise, handle success
+console.log('Success:', result.value);
+```
+
+You can also check for a successful value directly:
+
+```typescript
+const result = someFunctionReturningResult();
+if (result.value !== null) {
+  // Handle success
+  console.log('Success:', result.value);
+} else {
+  // Handle error
+  console.error('Error:', result.error);
 }
 ```
 
@@ -84,31 +109,50 @@ const resultOne = ok(42);
 const value = unwrapOr(resultOne, 12); // 42
 
 const resultTwo = err('Something went wrong');
-const value = unwrapOr(resultTwo, 12); // 12 default value
+const value2 = unwrapOr(resultTwo, 12); // 12 (default value)
 ```
 
 You can also unwrap the value from a successful result using `unwrap`, which throws an error for an error result:
 
 > [!WARNING]
-> This will throw an error if the result is an error, so make sure to handle it properly.
+> This will throw the error if the result is an error, so make sure to handle it properly.
 
 ```typescript
 const resultOne = ok(42);
 const value = unwrap(resultOne); // 42
 
 const resultTwo = err('Something went wrong');
-const value = unwrap(resultTwo); // throws an error
+const value2 = unwrap(resultTwo); // throws 'Something went wrong'
 ```
 
-### Transforming Result
+### TypeScript Error Type Inference
 
-You can apply a function to the value inside a successful result using `map`:
+#### ⚠️ Error Union Inference Limitation
+
+When you return multiple different `err("...")` values from a function, TypeScript will infer the return type as a union of separate `Err<...>` types (e.g., `Ok<42> | Err<"A"> | Err<"B">`), **not** as a merged `Err<"A" | "B">`.
+
+**Best Practice:**
+If you want the error type to be a union (e.g., `Ok<42> | Err<"A" | "B">`), explicitly annotate your function's return type:
 
 ```typescript
-const successResult = ok(42);
-const mappedResult = map(successResult, value => value * 2);
-// { value: 84, error: null }
+function test(): Ok<42> | Err<"A" | "B"> {
+  if (something) return err("A");
+  if (other) return ok(42);
+  return err("B");
+}
 ```
+
+If you do not annotate, TypeScript will infer:
+```typescript
+function test() {
+  if (something) return err("A");
+  if (other) return ok(42);
+  return err("B");
+}
+// Inferred: Ok<42> | Err<"A"> | Err<"B">
+```
+
+This is a TypeScript limitation. See [TypeScript Issue #14094](https://github.com/microsoft/TypeScript/issues/14094) for more details.
 
 ### Roadmap
 
@@ -117,4 +161,4 @@ const mappedResult = map(successResult, value => value * 2);
 
 ### Contributing
 
-Contributions are welcome, feel free to open an issue or a pull request.🍀
+Contributions are welcome, feel free to open an issue or a pull request.🌰
