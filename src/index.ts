@@ -1,6 +1,6 @@
-import * as core from './core/result';
+import * as core from "./core/result";
 
-export * from './core/result'; // individual named exports
+export * from "./core/result"; // individual named exports
 
 export const result = core; // grouped named export
 
